@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StudentApp.Views.Parent.ParentHomePage"
+             xmlns:viewmodels="clr-namespace:StudentApp.ViewModels.Parent"
+             xmlns:models="clr-namespace:StudentApp.Models"
+             Title="الرئيسية"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ContentPage.BindingContext>
+        <viewmodels:ParentHomeViewModel />
+    </ContentPage.BindingContext>
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding LoadDataCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- ترحيب ولي الأمر -->
+                <Frame Style="{StaticResource CardStyle}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                        <Image Grid.RowSpan="2" Source="parent_icon.png" WidthRequest="50" HeightRequest="50" />
+                        
+                        <Label Grid.Column="1" Text="{Binding ParentName, StringFormat='مرحباً، {0}'}"
+                               FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimaryColor}" />
+                        
+                        <Label Grid.Column="1" Grid.Row="1" Text="{Binding CurrentDate}"
+                               FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                        
+                        <Button Grid.Column="2" Grid.RowSpan="2" 
+                                Text="تسجيل الخروج"
+                                Command="{Binding LogoutCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                HeightRequest="40"
+                                Padding="10,0" />
+                    </Grid>
+                </Frame>
+
+                <!-- الأبناء -->
+                <Label Text="الأبناء" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0" />
+                <Frame Style="{StaticResource CardStyle}" IsVisible="{Binding Children.Count, Converter={StaticResource CountToBoolConverter}}">
+                    <CollectionView ItemsSource="{Binding Children}" SelectionMode="None" EmptyView="لا يوجد أبناء مسجلين">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Student">
+                                <Frame Style="{StaticResource CardStyle}" Margin="0,5">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ParentHomeViewModel}}, Path=ViewChildDetailsCommand}" CommandParameter="{Binding .}" />
+                                    </Frame.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                        <Image Grid.RowSpan="3" Source="{Binding ProfileImageUrl, TargetNullValue='student_placeholder.png'}" WidthRequest="60" HeightRequest="60" />
+                                        
+                                        <Label Grid.Column="1" Text="{Binding Name}" FontAttributes="Bold" FontSize="16" />
+                                        <Label Grid.Column="1" Grid.Row="1" Text="{Binding FullGradeInfo}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                        <Label Grid.Column="1" Grid.Row="2" Text="{Binding SchoolNumber, StringFormat='الرقم المدرسي: {0}'}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" />
+                                        
+                                        <Image Grid.Column="2" Grid.RowSpan="3" Source="arrow_forward.png" WidthRequest="20" HeightRequest="20" VerticalOptions="Center" />
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
+                <Label Text="لا يوجد أبناء مسجلين" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="Center"
+                       IsVisible="{Binding Children.Count, Converter={StaticResource InverseCountToBoolConverter}}" />
+
+                <!-- أزرار الوصول السريع -->
+                <Label Text="الوصول السريع" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0" />
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
+                    <Frame Grid.Column="0" Grid.Row="0" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource PrimaryColor}">
+                        <VerticalStackLayout Spacing="10">
+                            <Image Source="children_icon.png" HeightRequest="40" HorizontalOptions="Center" />
+                            <Label Text="الأبناء" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" />
+                            <Button Text="عرض" Command="{Binding NavigateToChildrenCommand}" BackgroundColor="White" TextColor="{StaticResource PrimaryColor}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    
+                    <Frame Grid.Column="1" Grid.Row="0" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource SecondaryColor}">
+                        <VerticalStackLayout Spacing="10">
+                            <Image Source="attendance_icon.png" HeightRequest="40" HorizontalOptions="Center" />
+                            <Label Text="سجل الحضور" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" />
+                            <Button Text="عرض" Command="{Binding NavigateToAttendanceHistoryCommand}" BackgroundColor="White" TextColor="{StaticResource SecondaryColor}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    
+                    <Frame Grid.Column="0" Grid.Row="1" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AccentColor}">
+                        <VerticalStackLayout Spacing="10">
+                            <Image Source="behavior_icon.png" HeightRequest="40" HorizontalOptions="Center" />
+                            <Label Text="سجل السلوك" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" />
+                            <Button Text="عرض" Command="{Binding NavigateToBehaviorHistoryCommand}" BackgroundColor="White" TextColor="{StaticResource AccentColor}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    
+                    <Frame Grid.Column="1" Grid.Row="1" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource InfoColor}">
+                        <VerticalStackLayout Spacing="10">
+                            <Image Source="reports_icon.png" HeightRequest="40" HorizontalOptions="Center" />
+                            <Label Text="التقارير" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" />
+                            <Button Text="عرض" Command="{Binding NavigateToReportsCommand}" BackgroundColor="White" TextColor="{StaticResource InfoColor}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- سجل الحضور اليوم -->
+                <Label Text="سجل الحضور اليوم" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0" />
+                <Frame Style="{StaticResource CardStyle}" IsVisible="{Binding TodayAttendance.Count, Converter={StaticResource CountToBoolConverter}}">
+                    <CollectionView ItemsSource="{Binding TodayAttendance}" HeightRequest="200" EmptyView="لا يوجد سجل حضور لليوم">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Attendance">
+                                <Grid Padding="5" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <Ellipse Grid.RowSpan="3" WidthRequest="12" HeightRequest="12" Fill="{Binding Status, Converter={StaticResource AttendanceStatusColorConverter}}" VerticalOptions="Start" Margin="0,5,0,0" />
+                                    
+                                    <Label Grid.Column="1" Text="{Binding TypeText}" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Grid.Row="1" Text="{Binding StatusText}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                    <Label Grid.Column="1" Grid.Row="2" Text="{Binding Notes}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" IsVisible="{Binding Notes, Converter={StaticResource StringToBoolConverter}}" />
+                                    
+                                    <VerticalStackLayout Grid.Column="2" Grid.RowSpan="3">
+                                        <Label Text="{Binding TimeText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
+                <Label Text="لا يوجد سجل حضور لليوم" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="Center"
+                       IsVisible="{Binding TodayAttendance.Count, Converter={StaticResource InverseCountToBoolConverter}}" />
+
+                <!-- آخر سجلات السلوك -->
+                <Label Text="آخر سجلات السلوك" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0" />
+                <Frame Style="{StaticResource CardStyle}" IsVisible="{Binding RecentBehaviors.Count, Converter={StaticResource CountToBoolConverter}}">
+                    <CollectionView ItemsSource="{Binding RecentBehaviors}" HeightRequest="200" EmptyView="لا توجد سجلات سلوك">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Behavior">
+                                <Grid Padding="5" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <Ellipse Grid.RowSpan="3" WidthRequest="12" HeightRequest="12" Fill="{Binding TypeColor}" VerticalOptions="Start" Margin="0,5,0,0" />
+                                    
+                                    <Label Grid.Column="1" Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Grid.Row="1" Text="{Binding Description}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                    <Label Grid.Column="1" Grid.Row="2" Text="{Binding Location, StringFormat='المكان: {0}'}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" IsVisible="{Binding Location, Converter={StaticResource StringToBoolConverter}}" />
+                                    
+                                    <VerticalStackLayout Grid.Column="2" Grid.RowSpan="3">
+                                        <Label Text="{Binding PointsText}" FontAttributes="Bold" TextColor="{Binding TypeColor}" HorizontalOptions="End" />
+                                        <Label Text="{Binding DateText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                        <Label Text="{Binding TimeText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
+                <Label Text="لا توجد سجلات سلوك" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="Center"
+                       IsVisible="{Binding RecentBehaviors.Count, Converter={StaticResource InverseCountToBoolConverter}}" />
+
+                <!-- الإشعارات -->
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+                    <Label Text="آخر الإشعارات" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0" />
+                    <Button Grid.Column="1" Text="تعيين الكل كمقروء" Command="{Binding MarkAllNotificationsAsReadCommand}" Style="{StaticResource SecondaryButtonStyle}" IsVisible="{Binding UnreadNotifications, Converter={StaticResource CountToBoolConverter}}" />
+                </Grid>
+                <Frame Style="{StaticResource CardStyle}" IsVisible="{Binding Notifications.Count, Converter={StaticResource CountToBoolConverter}}">
+                    <CollectionView ItemsSource="{Binding Notifications}" HeightRequest="200" EmptyView="لا توجد إشعارات">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Notification">
+                                <Grid Padding="5" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                                    <Ellipse Grid.RowSpan="2" WidthRequest="12" HeightRequest="12" Fill="{Binding TypeColor}" VerticalOptions="Start" Margin="0,5,0,0" />
+                                    
+                                    <Label Grid.Column="1" Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Grid.Row="1" Text="{Binding Message}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                    
+                                    <VerticalStackLayout Grid.Column="2" Grid.RowSpan="2">
+                                        <Label Text="{Binding DateText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                        <Label Text="{Binding TimeText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                        <Ellipse WidthRequest="10" HeightRequest="10" Fill="{StaticResource PrimaryColor}" IsVisible="{Binding IsRead, Converter={StaticResource InverseBoolConverter}}" HorizontalOptions="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
+                <Label Text="لا توجد إشعارات" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="Center"
+                       IsVisible="{Binding Notifications.Count, Converter={StaticResource InverseCountToBoolConverter}}" />
+
+                <!-- مؤشر التحميل -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

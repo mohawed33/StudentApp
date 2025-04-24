@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StudentApp.Views.Teacher.ReportsPage"
+             xmlns:viewmodels="clr-namespace:StudentApp.ViewModels.Teacher"
+             xmlns:models="clr-namespace:StudentApp.Models"
+             Title="التقارير"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ContentPage.BindingContext>
+        <viewmodels:ReportsViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*" Padding="20" ColumnSpacing="20">
+        <!-- الجانب الأيمن: اختيار الطالب/الصف -->
+        <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" RowDefinitions="Auto,Auto,*" IsVisible="{Binding IsStudentReportSelected}">
+            <!-- شريط البحث -->
+            <Frame Grid.Row="0" Style="{StaticResource CardStyle}" Padding="10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry Placeholder="بحث عن طالب..." Text="{Binding SearchText}" ReturnCommand="{Binding SearchCommand}" />
+                    <Button Grid.Column="1" Text="بحث" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                </Grid>
+            </Frame>
+
+            <!-- تصفية حسب الصف -->
+            <Frame Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,10,0,10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="تصفية حسب الصف:" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding Grades}" SelectionMode="Single" SelectedItem="{Binding SelectedGrade}" SelectionChangedCommand="{Binding FilterByGradeCommand}" SelectionChangedCommandParameter="{Binding SelectedGrade}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Frame Padding="10,5" BackgroundColor="{Binding ., Converter={StaticResource SelectedItemConverter}, ConverterParameter={Binding SelectedGrade, Source={RelativeSource AncestorType={x:Type viewmodels:ReportsViewModel}}}}">
+                                    <Label Text="{Binding .}" TextColor="{Binding ., Converter={StaticResource SelectedItemTextConverter}, ConverterParameter={Binding SelectedGrade, Source={RelativeSource AncestorType={x:Type viewmodels:ReportsViewModel}}}}" />
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- قائمة الطلاب -->
+            <CollectionView Grid.Row="2" ItemsSource="{Binding Students}" SelectionMode="Single" SelectedItem="{Binding SelectedStudent}" SelectionChangedCommand="{Binding SelectStudentCommand}" SelectionChangedCommandParameter="{Binding SelectedStudent}" EmptyView="لا يوجد طلاب">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Student">
+                        <Frame Style="{StaticResource CardStyle}" Margin="0,5">
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                                <Image Grid.RowSpan="2" Source="{Binding ProfileImageUrl, TargetNullValue='student_placeholder.png'}" WidthRequest="50" HeightRequest="50" />
+                                
+                                <Label Grid.Column="1" Text="{Binding Name}" FontAttributes="Bold" />
+                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding FullGradeInfo}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <!-- الجانب الأيمن: اختيار الصف (لتقرير الصف) -->
+        <Frame Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource CardStyle}" IsVisible="{Binding IsClassReportSelected}">
+            <VerticalStackLayout Spacing="15">
+                <Label Text="اختر الصف:" FontAttributes="Bold" FontSize="16" />
+                <Picker ItemsSource="{Binding Grades}" SelectedItem="{Binding SelectedGrade}" Title="اختر الصف" />
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- الجانب الأيسر: إعدادات التقرير -->
+        <Frame Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource CardStyle}">
+            <ScrollView>
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="إعدادات التقرير" FontAttributes="Bold" FontSize="18" />
+
+                    <!-- نوع التقرير -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="نوع التقرير:" FontAttributes="Bold" />
+                        <Picker ItemsSource="{Binding ReportTypes}" SelectedItem="{Binding SelectedReportType}" SelectedIndexChanged="ReportTypePicker_SelectedIndexChanged">
+                            <Picker.ItemDisplayBinding>
+                                <Binding Converter="{StaticResource ReportTypeConverter}" />
+                            </Picker.ItemDisplayBinding>
+                        </Picker>
+                    </VerticalStackLayout>
+
+                    <!-- الفترة الزمنية -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="الفترة الزمنية:" FontAttributes="Bold" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="من:" />
+                                <DatePicker Date="{Binding StartDate}" Format="dd/MM/yyyy" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Text="إلى:" />
+                                <DatePicker Date="{Binding EndDate}" Format="dd/MM/yyyy" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- محتوى التقرير -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="محتوى التقرير:" FontAttributes="Bold" />
+                        <HorizontalStackLayout Spacing="10">
+                            <CheckBox IsChecked="{Binding IncludeAttendance}" />
+                            <Label Text="الحضور" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="10">
+                            <CheckBox IsChecked="{Binding IncludeBehavior}" />
+                            <Label Text="السلوك" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="10">
+                            <CheckBox IsChecked="{Binding IncludeNotes}" />
+                            <Label Text="الملاحظات" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- معلومات التقرير -->
+                    <Frame Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource BackgroundColor}" BorderColor="{StaticResource PrimaryColor}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="معلومات التقرير" FontAttributes="Bold" />
+                            <Label Text="{Binding SelectedStudent.Name, StringFormat='الطالب: {0}'}" IsVisible="{Binding IsStudentReportSelected}" />
+                            <Label Text="{Binding SelectedGrade, StringFormat='الصف: {0}'}" IsVisible="{Binding IsClassReportSelected}" />
+                            <Label Text="{Binding StartDate, StringFormat='من: {0:dd/MM/yyyy}'}" />
+                            <Label Text="{Binding EndDate, StringFormat='إلى: {0:dd/MM/yyyy}'}" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- رسالة الخطأ -->
+                    <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource ErrorColor}" IsVisible="{Binding HasError}" HorizontalOptions="Center" />
+
+                    <!-- زر إنشاء التقرير -->
+                    <Button Text="إنشاء التقرير" Command="{Binding GenerateReportCommand}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding IsGenerating, Converter={StaticResource InverseBoolConverter}}" />
+                    <ActivityIndicator IsRunning="{Binding IsGenerating}" IsVisible="{Binding IsGenerating}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </Frame>
+
+        <!-- مؤشر التحميل -->
+        <ActivityIndicator Grid.ColumnSpan="2" Grid.RowSpan="2" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
+</ContentPage>

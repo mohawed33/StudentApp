@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StudentApp.Views.Teacher.AddStudentPage"
+             xmlns:viewmodels="clr-namespace:StudentApp.ViewModels.Teacher"
+             Title="{Binding PageTitle}"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ContentPage.BindingContext>
+        <viewmodels:AddStudentViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- صورة الطالب -->
+            <Frame Style="{StaticResource CardStyle}" Padding="20">
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Image Source="{Binding Student.ProfileImageUrl, TargetNullValue='student_placeholder.png'}" 
+                           WidthRequest="120" HeightRequest="120" 
+                           Aspect="AspectFill" />
+                    <Button Text="اختيار صورة" Command="{Binding PickProfileImageCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- بيانات الطالب -->
+            <Frame Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="بيانات الطالب" FontAttributes="Bold" FontSize="18" />
+
+                    <Entry Placeholder="اسم الطالب" Text="{Binding Student.Name}" Style="{StaticResource EntryStyle}" />
+                    
+                    <Entry Placeholder="الرقم المدرسي" Text="{Binding Student.SchoolNumber}" Style="{StaticResource EntryStyle}" Keyboard="Numeric" />
+                    
+                    <Label Text="الصف" FontSize="16" />
+                    <Picker ItemsSource="{Binding Grades}" SelectedItem="{Binding SelectedGrade}" Title="اختر الصف" />
+                    
+                    <Label Text="الشعبة" FontSize="16" />
+                    <Picker ItemsSource="{Binding Sections}" SelectedItem="{Binding SelectedSection}" Title="اختر الشعبة" />
+                    
+                    <Label Text="تاريخ الميلاد" FontSize="16" />
+                    <DatePicker Date="{Binding Student.DateOfBirth}" Format="dd/MM/yyyy" />
+                    
+                    <Entry Placeholder="العنوان" Text="{Binding Student.Address}" Style="{StaticResource EntryStyle}" />
+                    
+                    <Editor Placeholder="ملاحظات" Text="{Binding Student.Notes}" HeightRequest="100" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- بيانات ولي الأمر -->
+            <Frame Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="بيانات ولي الأمر" FontAttributes="Bold" FontSize="18" />
+
+                    <Entry Placeholder="اسم ولي الأمر" Text="{Binding Student.ParentName}" Style="{StaticResource EntryStyle}" />
+                    
+                    <Entry Placeholder="رقم الهاتف" Text="{Binding Student.ParentPhone}" Style="{StaticResource EntryStyle}" Keyboard="Telephone" />
+                    
+                    <Entry Placeholder="البريد الإلكتروني" Text="{Binding Student.ParentEmail}" Style="{StaticResource EntryStyle}" Keyboard="Email" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- رسالة الخطأ -->
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource ErrorColor}" IsVisible="{Binding HasError}" HorizontalOptions="Center" />
+
+            <!-- أزرار الحفظ والإلغاء -->
+            <HorizontalStackLayout Spacing="15" HorizontalOptions="Center">
+                <Button Text="حفظ" Command="{Binding SaveStudentCommand}" Style="{StaticResource PrimaryButtonStyle}" WidthRequest="120" />
+                <Button Text="إلغاء" Command="{Binding CancelCommand}" Style="{StaticResource SecondaryButtonStyle}" WidthRequest="120" />
+            </HorizontalStackLayout>
+
+            <!-- مؤشر التحميل -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="StudentApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:StudentApp"
+    xmlns:views="clr-namespace:StudentApp.Views"
+    xmlns:teacher="clr-namespace:StudentApp.Views.Teacher"
+    xmlns:parent="clr-namespace:StudentApp.Views.Parent"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="True"
+    Shell.TabBarIsVisible="True"
+    Shell.NavBarHasShadow="True"
+    FlyoutHeaderBehavior="CollapseOnScroll"
+    Title="متابعة سلوك الطلاب">
+
+    <!-- تسجيل الدخول -->
+    <ShellContent
+        Title="تسجيل الدخول"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="LoginPage" />
+
+    <!-- قائمة المعلم -->
+    <TabBar x:Name="TeacherTabBar" Route="TeacherTabs" IsVisible="False">
+        <Tab Title="الرئيسية" Icon="home.png">
+            <ShellContent
+                Title="الرئيسية"
+                ContentTemplate="{DataTemplate teacher:TeacherHomePage}"
+                Route="TeacherHomePage" />
+        </Tab>
+        <Tab Title="الطلاب" Icon="students.png">
+            <ShellContent
+                Title="الطلاب"
+                ContentTemplate="{DataTemplate teacher:StudentListPage}"
+                Route="StudentListPage" />
+        </Tab>
+        <Tab Title="الحضور" Icon="attendance.png">
+            <ShellContent
+                Title="الحضور"
+                ContentTemplate="{DataTemplate teacher:AttendancePage}"
+                Route="AttendancePage" />
+        </Tab>
+        <Tab Title="السلوك" Icon="behavior.png">
+            <ShellContent
+                Title="السلوك"
+                ContentTemplate="{DataTemplate teacher:BehaviorPage}"
+                Route="BehaviorPage" />
+        </Tab>
+        <Tab Title="التقارير" Icon="reports.png">
+            <ShellContent
+                Title="التقارير"
+                ContentTemplate="{DataTemplate teacher:ReportsPage}"
+                Route="ReportsPage" />
+        </Tab>
+    </TabBar>
+
+    <!-- قائمة ولي الأمر -->
+    <TabBar x:Name="ParentTabBar" Route="ParentTabs" IsVisible="False">
+        <Tab Title="الرئيسية" Icon="home.png">
+            <ShellContent
+                Title="الرئيسية"
+                ContentTemplate="{DataTemplate parent:ParentHomePage}"
+                Route="ParentHomePage" />
+        </Tab>
+        <Tab Title="الأبناء" Icon="children.png">
+            <ShellContent
+                Title="الأبناء"
+                ContentTemplate="{DataTemplate parent:ChildrenPage}"
+                Route="ChildrenPage" />
+        </Tab>
+        <Tab Title="الحضور" Icon="attendance.png">
+            <ShellContent
+                Title="الحضور"
+                ContentTemplate="{DataTemplate parent:AttendanceHistoryPage}"
+                Route="AttendanceHistoryPage" />
+        </Tab>
+        <Tab Title="السلوك" Icon="behavior.png">
+            <ShellContent
+                Title="السلوك"
+                ContentTemplate="{DataTemplate parent:BehaviorHistoryPage}"
+                Route="BehaviorHistoryPage" />
+        </Tab>
+        <Tab Title="التقارير" Icon="reports.png">
+            <ShellContent
+                Title="التقارير"
+                ContentTemplate="{DataTemplate parent:ParentReportsPage}"
+                Route="ParentReportsPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>

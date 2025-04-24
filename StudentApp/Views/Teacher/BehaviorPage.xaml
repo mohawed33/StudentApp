@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StudentApp.Views.Teacher.BehaviorPage"
+             xmlns:viewmodels="clr-namespace:StudentApp.ViewModels.Teacher"
+             xmlns:models="clr-namespace:StudentApp.Models"
+             Title="تسجيل السلوك"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ContentPage.BindingContext>
+        <viewmodels:BehaviorViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*" Padding="20" ColumnSpacing="20">
+        <!-- الجانب الأيمن: اختيار الطالب -->
+        <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" RowDefinitions="Auto,Auto,*">
+            <!-- شريط البحث -->
+            <Frame Grid.Row="0" Style="{StaticResource CardStyle}" Padding="10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry Placeholder="بحث عن طالب..." Text="{Binding SearchText}" ReturnCommand="{Binding SearchCommand}" />
+                    <Button Grid.Column="1" Text="بحث" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                </Grid>
+            </Frame>
+
+            <!-- تصفية حسب الصف -->
+            <Frame Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,10,0,10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="تصفية حسب الصف:" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding Grades}" SelectionMode="Single" SelectedItem="{Binding SelectedGrade}" SelectionChangedCommand="{Binding FilterByGradeCommand}" SelectionChangedCommandParameter="{Binding SelectedGrade}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Frame Padding="10,5" BackgroundColor="{Binding ., Converter={StaticResource SelectedItemConverter}, ConverterParameter={Binding SelectedGrade, Source={RelativeSource AncestorType={x:Type viewmodels:BehaviorViewModel}}}}">
+                                    <Label Text="{Binding .}" TextColor="{Binding ., Converter={StaticResource SelectedItemTextConverter}, ConverterParameter={Binding SelectedGrade, Source={RelativeSource AncestorType={x:Type viewmodels:BehaviorViewModel}}}}" />
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- قائمة الطلاب -->
+            <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadDataCommand}">
+                <CollectionView ItemsSource="{Binding Students}" SelectionMode="Single" SelectedItem="{Binding SelectedStudent}" SelectionChangedCommand="{Binding SelectStudentCommand}" SelectionChangedCommandParameter="{Binding SelectedStudent}" EmptyView="لا يوجد طلاب">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Student">
+                            <Frame Style="{StaticResource CardStyle}" Margin="0,5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                                    <Image Grid.RowSpan="2" Source="{Binding ProfileImageUrl, TargetNullValue='student_placeholder.png'}" WidthRequest="50" HeightRequest="50" />
+                                    
+                                    <Label Grid.Column="1" Text="{Binding Name}" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Grid.Row="1" Text="{Binding FullGradeInfo}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+
+        <!-- الجانب الأيسر: تسجيل السلوك -->
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" RowDefinitions="Auto,*">
+            <!-- نموذج تسجيل السلوك -->
+            <Frame Grid.Row="0" Style="{StaticResource CardStyle}" IsVisible="{Binding SelectedStudent, Converter={StaticResource ObjectToBoolConverter}}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="{Binding SelectedStudent.Name, StringFormat='تسجيل سلوك للطالب: {0}'}" FontAttributes="Bold" FontSize="16" />
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="نوع السلوك" FontAttributes="Bold" />
+                            <Picker SelectedItem="{Binding SelectedBehaviorType}" SelectedIndexChanged="BehaviorTypePicker_SelectedIndexChanged">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type models:BehaviorType}">
+                                        <x:Static Member="models:BehaviorType.Positive" />
+                                        <x:Static Member="models:BehaviorType.Negative" />
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                                <Picker.ItemDisplayBinding>
+                                    <Binding Converter="{StaticResource BehaviorTypeConverter}" />
+                                </Picker.ItemDisplayBinding>
+                            </Picker>
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="النقاط" FontAttributes="Bold" />
+                            <Entry Text="{Binding Points}" Keyboard="Numeric" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="0">
+                            <Label Text="عنوان السلوك" FontAttributes="Bold" />
+                            <Entry Text="{Binding BehaviorTitle}" Placeholder="عنوان السلوك" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                            <Label Text="المكان" FontAttributes="Bold" />
+                            <Entry Text="{Binding Location}" Placeholder="مكان حدوث السلوك" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="وصف السلوك" FontAttributes="Bold" />
+                        <Editor Text="{Binding BehaviorDescription}" Placeholder="وصف تفصيلي للسلوك" HeightRequest="100" />
+                    </VerticalStackLayout>
+
+                    <CheckBox IsChecked="{Binding NotifyParent}" />
+                    <Label Text="إشعار ولي الأمر" VerticalOptions="Center" />
+
+                    <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource ErrorColor}" IsVisible="{Binding HasError}" HorizontalOptions="Center" />
+
+                    <Button Text="حفظ" Command="{Binding SaveBehaviorCommand}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBoolConverter}}" />
+                    <ActivityIndicator IsRunning="{Binding IsSaving}" IsVisible="{Binding IsSaving}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- رسالة اختيار الطالب -->
+            <Frame Grid.Row="0" Style="{StaticResource CardStyle}" IsVisible="{Binding SelectedStudent, Converter={StaticResource InverseObjectToBoolConverter}}">
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                    <Image Source="select_student_icon.png" WidthRequest="100" HeightRequest="100" />
+                    <Label Text="الرجاء اختيار طالب من القائمة" FontSize="16" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- آخر سجلات السلوك -->
+            <Frame Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,10,0,0">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding SelectedStudent.Name, StringFormat='آخر سجلات السلوك لـ {0}', TargetNullValue='آخر سجلات السلوك'}" FontAttributes="Bold" FontSize="16" />
+                    
+                    <CollectionView ItemsSource="{Binding RecentBehaviors}" HeightRequest="300" EmptyView="لا توجد سجلات سلوك">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Behavior">
+                                <Frame Style="{StaticResource CardStyle}" Margin="0,5">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                        <Ellipse Grid.RowSpan="3" WidthRequest="12" HeightRequest="12" Fill="{Binding TypeColor}" VerticalOptions="Start" Margin="0,5,0,0" />
+                                        
+                                        <Label Grid.Column="1" Text="{Binding Title}" FontAttributes="Bold" />
+                                        <Label Grid.Column="1" Grid.Row="1" Text="{Binding Description}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                        <Label Grid.Column="1" Grid.Row="2" Text="{Binding Location, StringFormat='المكان: {0}'}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" IsVisible="{Binding Location, Converter={StaticResource StringToBoolConverter}}" />
+                                        
+                                        <VerticalStackLayout Grid.Column="2" Grid.RowSpan="3">
+                                            <Label Text="{Binding PointsText}" FontAttributes="Bold" TextColor="{Binding TypeColor}" HorizontalOptions="End" />
+                                            <Label Text="{Binding DateText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                            <Label Text="{Binding TimeText}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" HorizontalOptions="End" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+
+        <!-- مؤشر التحميل -->
+        <ActivityIndicator Grid.ColumnSpan="2" Grid.RowSpan="2" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
+</ContentPage>

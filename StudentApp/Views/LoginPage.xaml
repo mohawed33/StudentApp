@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StudentApp.Views.LoginPage"
+             xmlns:viewmodels="clr-namespace:StudentApp.ViewModels"
+             Title="تسجيل الدخول"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ContentPage.BindingContext>
+        <viewmodels:LoginViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="20">
+
+        <!-- الشعار والعنوان -->
+        <StackLayout Grid.Row="0" Spacing="10" Margin="0,40,0,20">
+            <Image Source="app_logo.png"
+                   HeightRequest="100"
+                   WidthRequest="100"
+                   HorizontalOptions="Center" />
+            <Label Text="متابعة سلوك الطلاب"
+                   Style="{StaticResource HeaderLabelStyle}"
+                   HorizontalOptions="Center" />
+        </StackLayout>
+
+        <!-- نموذج تسجيل الدخول -->
+        <VerticalStackLayout Grid.Row="1"
+                             VerticalOptions="Center"
+                             Spacing="20">
+
+            <!-- اختيار نوع المستخدم -->
+            <Label Text="اختر نوع المستخدم:"
+                   FontSize="16"
+                   TextColor="{StaticResource TextSecondaryColor}"
+                   HorizontalOptions="Center" />
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+                <RadioButton Content="معلم / إدارة"
+                             GroupName="role"
+                             IsChecked="{Binding SelectedRole, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Teacher}" />
+                <RadioButton Content="ولي أمر"
+                             GroupName="role"
+                             IsChecked="{Binding SelectedRole, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Parent}" />
+            </HorizontalStackLayout>
+
+            <!-- حقول الإدخال -->
+            <Entry Placeholder="اسم المستخدم"
+                   Text="{Binding Username}"
+                   Style="{StaticResource EntryStyle}" />
+
+            <Entry Placeholder="كلمة المرور"
+                   Text="{Binding Password}"
+                   IsPassword="True"
+                   Style="{StaticResource EntryStyle}" />
+
+            <!-- رسالة الخطأ -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="{StaticResource ErrorColor}"
+                   IsVisible="{Binding HasError}"
+                   HorizontalOptions="Center" />
+
+            <!-- زر تسجيل الدخول -->
+            <Button Text="تسجيل الدخول"
+                    Command="{Binding LoginCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}" />
+
+            <!-- مؤشر التحميل -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               Color="{StaticResource PrimaryColor}"
+                               HorizontalOptions="Center" />
+
+            <!-- نسيت كلمة المرور -->
+            <Label Text="نسيت كلمة المرور؟"
+                   TextColor="{StaticResource PrimaryColor}"
+                   FontSize="14"
+                   HorizontalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+
+        <!-- معلومات التطبيق -->
+        <StackLayout Grid.Row="2" Spacing="5" Margin="0,20,0,0">
+            <Label Text="الإصدار 1.0.0"
+                   TextColor="{StaticResource TextSecondaryColor}"
+                   FontSize="12"
+                   HorizontalOptions="Center" />
+            <Label Text="جميع الحقوق محفوظة © 2023"
+                   TextColor="{StaticResource TextSecondaryColor}"
+                   FontSize="12"
+                   HorizontalOptions="Center" />
+        </StackLayout>
+    </Grid>
+</ContentPage>

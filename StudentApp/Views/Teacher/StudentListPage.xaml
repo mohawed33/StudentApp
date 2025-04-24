@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StudentApp.Views.Teacher.StudentListPage"
+             xmlns:viewmodels="clr-namespace:StudentApp.ViewModels.Teacher"
+             xmlns:models="clr-namespace:StudentApp.Models"
+             Title="قائمة الطلاب"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ContentPage.BindingContext>
+        <viewmodels:StudentListViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="إضافة طالب" Command="{Binding NavigateToAddStudentCommand}" IconImageSource="add_icon.png" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="20">
+        <!-- شريط البحث -->
+        <Frame Grid.Row="0" Style="{StaticResource CardStyle}" Padding="10">
+            <Grid ColumnDefinitions="*,Auto">
+                <Entry Placeholder="بحث عن طالب..." Text="{Binding SearchText}" ReturnCommand="{Binding SearchCommand}" />
+                <Button Grid.Column="1" Text="بحث" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+            </Grid>
+        </Frame>
+
+        <!-- تصفية حسب الصف -->
+        <Frame Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,10,0,10">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="تصفية حسب الصف:" FontAttributes="Bold" />
+                <CollectionView ItemsSource="{Binding Grades}" SelectionMode="Single" SelectedItem="{Binding SelectedGrade}" SelectionChangedCommand="{Binding FilterByGradeCommand}" SelectionChangedCommandParameter="{Binding SelectedGrade}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Frame Padding="10,5" BackgroundColor="{Binding ., Converter={StaticResource SelectedItemConverter}, ConverterParameter={Binding SelectedGrade, Source={RelativeSource AncestorType={x:Type viewmodels:StudentListViewModel}}}}">
+                                <Label Text="{Binding .}" TextColor="{Binding ., Converter={StaticResource SelectedItemTextConverter}, ConverterParameter={Binding SelectedGrade, Source={RelativeSource AncestorType={x:Type viewmodels:StudentListViewModel}}}}" />
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- قائمة الطلاب -->
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadDataCommand}">
+            <CollectionView ItemsSource="{Binding Students}" SelectionMode="None" EmptyView="لا يوجد طلاب">
+                <CollectionView.Header>
+                    <StackLayout Orientation="Horizontal" Padding="0,10">
+                        <Label Text="{Binding TotalStudents, StringFormat='إجمالي الطلاب: {0}'}" FontAttributes="Bold" />
+                    </StackLayout>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Student">
+                        <Frame Style="{StaticResource CardStyle}" Margin="0,5">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:StudentListViewModel}}, Path=NavigateToStudentDetailsCommand}" CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <Image Grid.RowSpan="3" Source="{Binding ProfileImageUrl, TargetNullValue='student_placeholder.png'}" WidthRequest="60" HeightRequest="60" />
+                                
+                                <Label Grid.Column="1" Text="{Binding Name}" FontAttributes="Bold" FontSize="16" />
+                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding FullGradeInfo}" FontSize="14" TextColor="{StaticResource TextSecondaryColor}" />
+                                <Label Grid.Column="1" Grid.Row="2" Text="{Binding SchoolNumber, StringFormat='الرقم المدرسي: {0}'}" FontSize="12" TextColor="{StaticResource TextSecondaryColor}" />
+                                
+                                <Image Grid.Column="2" Grid.RowSpan="3" Source="arrow_forward.png" WidthRequest="20" HeightRequest="20" VerticalOptions="Center" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- مؤشر التحميل -->
+        <ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
+</ContentPage>
