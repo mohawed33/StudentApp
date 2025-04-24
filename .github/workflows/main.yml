@@ -26,8 +26,8 @@ jobs:
     - name: Build Android App
       run: dotnet publish StudentApp/StudentApp.csproj -f net7.0-android -c Release
       
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+       - name: Upload APK
+      uses: actions/upload-artifact@v2
       with:
         name: StudentApp-APK
         path: StudentApp/bin/Release/net7.0-android/*-Signed.apk
